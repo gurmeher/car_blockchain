@@ -1,10 +1,10 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from blockchain import Blockchain
-import hashlib
 import time
-import json
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -16,9 +16,12 @@ blockchain = Blockchain()
 #sends back the entire blockchain as a JSON response
 @app.route("/chain", methods=["GET"])
 def get_chain():
+    limit = request.args.get("limit", default=5, type=int)
+    chain_slice = blockchain.chain[-limit:]
     response = {
         "length": len(blockchain.chain),
-        "chain": blockchain.chain
+        "returned": len(chain_slice),
+        "chain": chain_slice
     }
     return jsonify(response), 200
 
@@ -26,6 +29,9 @@ def get_chain():
 #turn pending transactions into a block
 @app.route("/mine", methods=["GET"])
 def mine_block():
+    if len(blockchain.pending_transactions) == 0:
+        return jsonify({"error": "No pending transactions to mine, please add one first (try registering a new vin, for example!)"}), 400
+    
     previous_block = blockchain.get_previous_block()
     previous_hash = blockchain.hash(previous_block)
     nonce = blockchain.proof_of_work(previous_block["nonce"], previous_hash)

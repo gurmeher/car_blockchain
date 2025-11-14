@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CarChain Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body { background: #f7f7f7; }
+        .card { margin-bottom: 20px; }
+        pre { background: #000; color: #0f0; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+
+<body class="container py-4">
+
+    <h1 class="text-center mb-4">Dashboard</h1>
+
+    <!-- Blockchain -->
+    <div class="card">
+        <div class="card-header">View Blockchain</div>
+        <div class="card-body">
+            <button class="btn btn-primary" onclick="getChain()">Load Chain (Returns Recent 5)</button>
+            <pre id="chainOutput"></pre>
+        </div>
+    </div>
+
+    <!-- Mine Block -->
+    <div class="card">
+        <div class="card-header">Mine Block</div>
+        <div class="card-body">
+            <button class="btn btn-warning" onclick="mineBlock()">Mine</button>
+            <pre id="mineOutput"></pre>
+        </div>
+    </div>
+
+    <!-- Register VIN -->
+    <div class="card">
+        <div class="card-header">Register Vehicle VIN</div>
+        <div class="card-body">
+            <input id="registerVin" class="form-control mb-2" placeholder="VIN">
+            <input id="registerOwner" class="form-control mb-2" placeholder="Owner">
+            <button class="btn btn-success" onclick="registerVin()">Register VIN</button>
+            <pre id="registerOutput"></pre>
+        </div>
+    </div>
+
+    <!-- Transfer Ownership -->
+    <div class="card">
+        <div class="card-header">Transfer Ownership</div>
+        <div class="card-body">
+            <input id="transferVin" class="form-control mb-2" placeholder="VIN">
+            <input id="fromOwner" class="form-control mb-2" placeholder="From Owner">
+            <input id="toOwner" class="form-control mb-2" placeholder="To Owner">
+            <button class="btn btn-info" onclick="transferVin()">Transfer</button>
+            <pre id="transferOutput"></pre>
+        </div>
+    </div>
+
+    <!-- Odometer Update -->
+    <div class="card">
+        <div class="card-header">Odometer Update</div>
+        <div class="card-body">
+            <input id="odomVin" class="form-control mb-2" placeholder="VIN">
+            <input id="odomMileage" type="number" class="form-control mb-2" placeholder="Mileage">
+            <button class="btn btn-dark" onclick="updateOdometer()">Update</button>
+            <pre id="odomOutput"></pre>
+        </div>
+    </div>
+
+    <!-- VIN History -->
+    <div class="card">
+        <div class="card-header">Lookup VIN History</div>
+        <div class="card-body">
+            <input id="historyVin" class="form-control mb-2" placeholder="VIN">
+            <button class="btn btn-secondary" onclick="getHistory()">Search</button>
+            <pre id="historyOutput"></pre>
+        </div>
+    </div>
+
+<script>
+    const API = "http://localhost:3000";   // ← CHANGE THIS TO AWS IP LATER
+
+    function log(id, data) {
+        document.getElementById(id).textContent = JSON.stringify(data, null, 2);
+    }
+
+    // View blockchain
+    async function getChain() {
+        const res = await fetch(`${API}/chain`);
+        log("chainOutput", await res.json());
+    }
+
+    // Mine block
+    async function mineBlock() {
+        const res = await fetch(`${API}/mine`);
+        log("mineOutput", await res.json());
+    }
+
+    // Register VIN
+    async function registerVin() {
+        const data = {
+            vin: document.getElementById("registerVin").value,
+            owner: document.getElementById("registerOwner").value
+        };
+        const res = await fetch(`${API}/vin/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        log("registerOutput", await res.json());
+    }
+
+    // Transfer Ownership
+    async function transferVin() {
+        const data = {
+            vin: document.getElementById("transferVin").value,
+            from_owner: document.getElementById("fromOwner").value,
+            to_owner: document.getElementById("toOwner").value
+        };
+        const res = await fetch(`${API}/vin/transfer`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        log("transferOutput", await res.json());
+    }
+
+    // Odometer update
+    async function updateOdometer() {
+        const data = {
+            vin: document.getElementById("odomVin").value,
+            mileage: Number(document.getElementById("odomMileage").value)
+        };
+        const res = await fetch(`${API}/vin/odometer`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        log("odomOutput", await res.json());
+    }
+
+    // VIN history
+    async function getHistory() {
+        const vin = document.getElementById("historyVin").value;
+        const res = await fetch(`${API}/vin/${vin}`);
+        log("historyOutput", await res.json());
+    }
+</script>
+
+</body>
+</html>
