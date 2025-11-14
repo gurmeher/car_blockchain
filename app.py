@@ -68,6 +68,9 @@ def register_vin():
     if not data or not all(field in data for field in required):
         return jsonify({"error": "Missing fields"}), 400
 
+    if len(data["vin"]) != 17:
+        return jsonify({"error": "Invalid VIN (must be 17 characters)"}), 400
+    
     state = blockchain.get_latest_vin_state(data["vin"])
 
     if state["exists"]:
@@ -134,8 +137,8 @@ def odometer_update():
         return jsonify({"error": "VIN not registered"}), 400
 
     # Odometer must increase
-    if state["last_mileage"] is not None and data["mileage"] < state["last_mileage"]:
-        return jsonify({"error": "Invalid mileage: cannot decrease"}), 400
+    if state["last_mileage"] is not None and data["mileage"] <= state["last_mileage"]:
+        return jsonify({"error": "Invalid mileage: cannot decrease or stay the same"}), 400
 
     transaction = {
         "type": "odometer_update",
