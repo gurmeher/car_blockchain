@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
 def home():
-    return jsonify({"message": "CarChain API is running"}), 200
+    return jsonify({"message": "Flask API is running"}), 200
 
 blockchain = Blockchain()
 
