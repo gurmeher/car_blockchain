@@ -1,10 +1,11 @@
 from flask import Flask, jsonify, request
 import hashlib
 import time
+import json
 
 app = Flask(__name__)
 
-@app.route("/", methods=["GET"]) # when someone accesses the root URL with a GET request, do this
+@app.route("/", methods=["GET"])
 def home():
     return jsonify({"message": "CarChain API is running"}), 200
 
@@ -50,11 +51,23 @@ class Blockchain:
     #hash a block
     @staticmethod
     def hash(block):
-        encoded = str(block).encode()
-        return hashlib.sha256(encoded).hexdigest()
+        block_string = json.dumps(block, sort_keys=True).encode()
+        return hashlib.sha256(block_string).hexdigest()
     
+    #makes it so mining requires work to get a new block that works
     def proof_of_work(self):
-        return 1
+        """
+        Simple Proof of Work:
+        - Find a nonce such that hash(previous_nonce, nonce) starts with '0000'
+        - This makes mining require real computational work
+        """
+        nonce = 0
+        while True:
+            guess = f"{previous_nonce}{nonce}".encode()
+            guess_hash = hashlib.sha256(guess).hexdigest()
+            if guess_hash[:4] == "0000":
+                return nonce
+            nonce += 1
 
 blockchain = Blockchain()
 
