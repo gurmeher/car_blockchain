@@ -1,6 +1,6 @@
 # VIN Blockchain
 
-A decentralized blockchain-based system for tracking Vehicle Identification Numbers (VINs), ownership transfers, and odometer readings. Uses a custom blockchain implementation with Proof of Work consensus.
+A lightweight, proof-of-concept blockchain implemented in Python + Flask that allows VIN registration, ownership transfers, and odometer updates. It uses a simple Proof of Work consensus, exposes REST endpoints for operations, and includes a Dockerfile + Gunicorn for deployment.
 
 ## Features
 
